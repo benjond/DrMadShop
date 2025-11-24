@@ -7,6 +7,9 @@ export const useShopStore = defineStore('shop', () => {
 
   const viruses = ref([]);
   const shopUser = ref(null);
+  const basket = ref({
+    items: []
+  });
 
   async function shopLogin(data) {
     console.log('login');
