@@ -23,12 +23,12 @@ export const useBankStore = defineStore('bank', () => {
     async function getAccountTransactions(number) {
         console.log('récupération des transactions du compte');
         let response = await BankService.getAccountTransactions(number);
-            accountNumberState.value = 1;
         if (response.error === 0) {
             accountTransactions.value = response.data;
-            accountNumberState.value = -1;
+            accountNumberState.value = 1;
         } else {
             console.log(response.data);
+            accountNumberState.value = -1;
         }
     }
 

@@ -68,7 +68,7 @@ function getAccountAmount(number) {
 }
 
 /**
- * Si un nÂ° est fourni et qu'il correspond Ã  un compte existant, getAccountTransactions() renvoie uniquement le solde
+ * Si un n'est fourni et qu'il correspond à un compte existant, getAccountTransactions() renvoie uniquement le solde
  * du compte, sinon un texte d'erreur.
  * @param number
  * @returns {{error: number, status: number, data: ({_id: string, amount: number, account: string, date: {$date: string}, uuid: string}|{_id: string, amount: number, account: string, date: {$date: string}, uuid: string}|{_id: string, amount: number, account: string, date: {$date: string}, uuid: string})[]}|{error: number, status: number, data: string}}
