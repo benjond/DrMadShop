@@ -20,7 +20,14 @@
 
           <!-- Bouton d'item si itemButton.show est true -->
           <td v-if="itemButton && itemButton.show" class="button-cell">
-            <button @click="emit('item-button-clicked', index)">
+            <input 
+              v-if="itemAmount" 
+              type="number" 
+              v-model="amounts[index]" 
+              min="1" 
+              class="amount-input"
+            >
+            <button @click="itemButtonClicked(index)">
               {{ itemButton.text }}
             </button>
           </td>
@@ -31,7 +38,7 @@
     <!-- Bouton de liste si listButton.show est true -->
     <button
       v-if="listButton && listButton.show"
-      @click="emit('list-button-clicked')"
+      @click="listButtonClicked"
       class="list-button"
     >
       {{ listButton.text }}
@@ -40,17 +47,51 @@
 </template>
 
 <script setup>
-defineProps({
-  data: Array, // les données sources
-  fields: Array, // le tableau contenant le nom des champs
-  itemCheck: Boolean, // s'il y a des case à cocher
-  checked: Array, // le tableau des cases cochées
+import { ref, watch } from 'vue';
+
+const props = defineProps({
+  data: Array,
+  fields: Array, 
+  itemCheck: Boolean,
+  checked: Array, 
   itemButton: Object, // l'objet pour les boutons d'items
   listButton: Object, // l'objet pour le bouton de liste
-
+  itemAmount: Boolean,
 })
 
 const emit = defineEmits(['checked-changed', 'item-button-clicked', 'list-button-clicked'])
+
+const amounts = ref([]);
+
+watch(() => props.data, (newData) => {
+  if (newData) {
+    amounts.value = new Array(newData.length).fill(1);
+  }
+}, { immediate: true });
+
+function itemButtonClicked(index) {
+  if (props.itemAmount) {
+    emit('item-button-clicked', { index, amount: amounts.value[index] });
+  } else {
+    emit('item-button-clicked', index);
+  }
+}
+
+function listButtonClicked() {
+  if (props.itemAmount) {
+    const selected = [];
+    if (props.checked) {
+      props.checked.forEach((isChecked, index) => {
+        if (isChecked) {
+          selected.push({ index, amount: amounts.value[index] });
+        }
+      });
+    }
+    emit('list-button-clicked', selected);
+  } else {
+    emit('list-button-clicked');
+  }
+}
 </script>
 
 <style scoped>
@@ -125,5 +166,13 @@ table {
 
 .list-button:hover {
   background-color: #388E3C;
+}
+
+.amount-input {
+  width: 60px;
+  padding: 5px;
+  margin-right: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
 }
 </style>

@@ -5,30 +5,32 @@ import ShopService from '@/services/shop.service'
 
 export const useShopStore = defineStore('shop', () => {
 
-  const viruses = ref([])
-  const shopUser = ref(null)
+  const viruses = ref([]);
+  const shopUser = ref(null);
 
   async function shopLogin(data) {
     console.log('login');
-    let response = await ShopService.shopLogin(data)
+    let response = await ShopService.shopLogin(data);
     if (response.error === 0) {
-      shopUser.value = response.data
+      shopUser.value = response.data;
     }
     else {
-      console.log(response.data)
+      console.log(response.data);
     }
+    return response
   }
 
   async function getAllViruses() {
     console.log('récupération des viruses');
-    let response = await ShopService.getAllViruses()
+    let response = await ShopService.getAllViruses();
     if (response.error === 0) {
-      viruses.value = response.data
+      viruses.value = response.data;
     }
     else {
-      console.log(response.data)
+      console.log(response.data);
     }
+    return response
   }
 
-  return { viruses, shopUser, shopLogin, getAllViruses}
+  return { viruses, shopUser, shopLogin, getAllViruses };
 })
