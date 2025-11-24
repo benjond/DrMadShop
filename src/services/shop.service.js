@@ -23,6 +23,14 @@ async function getAllVirusesFromAPI() {
 }
 */
 
+async function getBasketFromLocalSource(data) {
+  return LocalSource.getBasket(data);
+}
+
+async function updateBasketFromLocalSource(data) {
+  return LocalSource.updateBasket(data);
+}
+
 async function shopLogin(data) {
   let response = null;
   try {
@@ -50,7 +58,29 @@ async function getAllViruses() {
   return response
 }
 
+async function getBasket(data) {
+  let response = null;
+  try {
+    response = await getBasketFromLocalSource(data);
+  } catch(err) {
+    response = {error : 1, status: 404, data: 'erreur réseau, impossible de récupérer la liste du panier utilisateur'}
+  }
+  return response;
+}
+
+async function updateBasket(data) {
+  let response = null;
+  try {
+    response = await updateBasketFromLocalSource(data);
+  } catch(err) {
+    response = {error : 1, status: 404, data: 'erreur réseau, impossible de mettre à jour la liste du panier utilisateur'}
+  }
+  return response;
+}
+
 export default {
   shopLogin,
-  getAllViruses
+  getAllViruses,
+  getBasket,
+  updateBasket
 }

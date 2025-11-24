@@ -86,9 +86,47 @@ function getAccountTransactions(number) {
     return {error: 0, status: 200, data: transaction}
 }
 
+/**
+ * Met à jour le panier (basket) d'un utilisateur identifié par son _id.
+ * @param {_id: string, basket: any} data - Objet contenant l'_id de l'utilisateur et le nouveau panier.
+ * @returns {{error: number, status: number, data: string}|{error: number, status: number, data: any}}
+ */
+function updateBasket(data) {
+    if (!data || !data._id || typeof data.basket === 'undefined') {
+        return {error: 1, status: 400, data: 'Paramètres manquants (_id ou basket)'}
+    }
+    let user = shopusers.find(u => u._id === data._id)
+    if (!user) {
+        return {error: 1, status: 404, data: 'Utilisateur non trouvé'}
+    }
+    user.basket = data.basket
+    return {error: 0, status: 200, data: user.basket}
+}
+
+/**
+ * Récupère le panier (basket) d'un utilisateur identifié par son _id.
+ * @param {{_id: string}} data - Objet contenant l'_id de l'utilisateur.
+ * @returns {{error: number, status: number, data: any}|{error: number, status: number, data: string}}
+ */
+function getBasket(data) {
+    if (!data || !data._id) {
+        return {error: 1, status: 400, data: 'Paramètre _id manquant'};
+    }
+    let user = shopusers.find(u => u._id === data._id);
+    if (!user) {
+        return {error: 1, status: 404, data: 'Utilisateur non trouvé'};
+    }
+    if (user.basket == null) user.basket = [];
+    let basket = JSON.parse(JSON.stringify(user.basket));
+    return {error: 0, status: 200, data: basket};
+}
+
+
 export default{
     shopLogin,
     getAllViruses,
     getAccountAmount,
     getAccountTransactions,
+    getBasket,
+    updateBasket
 }
