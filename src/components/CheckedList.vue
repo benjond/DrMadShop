@@ -1,10 +1,8 @@
 <template>
   <div class="checked-list">
-    <!-- Liste des items -->
     <table v-if="data && data.length > 0">
       <tbody>
         <tr v-for="(item, index) in data" :key="index" class="list-item">
-          <!-- Case à cocher si itemCheck est true -->
           <td v-if="itemCheck" class="checkbox-cell">
             <input
               type="checkbox"
@@ -35,7 +33,6 @@
       </tbody>
     </table>
 
-    <!-- Bouton de liste si listButton.show est true -->
     <button
       v-if="listButton && listButton.show"
       @click="listButtonClicked"
@@ -54,8 +51,8 @@ const props = defineProps({
   fields: Array, 
   itemCheck: Boolean,
   checked: Array, 
-  itemButton: Object, // l'objet pour les boutons d'items
-  listButton: Object, // l'objet pour le bouton de liste
+  itemButton: Object,
+  listButton: Object,
   itemAmount: Boolean,
 })
 

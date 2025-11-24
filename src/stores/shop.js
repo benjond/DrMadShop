@@ -35,5 +35,22 @@ export const useShopStore = defineStore('shop', () => {
     return response
   }
 
-  return { viruses, shopUser, shopLogin, getAllViruses };
+  function addToCart(item, amount) {
+    if (shopUser.value) {
+      if (!shopUser.value.basket) {
+        shopUser.value.basket = { items: [] };
+      }
+
+      const existingItem = shopUser.value.basket.items.find(i => i.item._id === item._id);
+      if (existingItem) {
+        existingItem.amount += amount;
+      } else {
+        shopUser.value.basket.items.push({ item, amount });
+      }
+    } else {
+      console.warn('User not logged in, cannot add to cart');
+    }
+  }
+
+  return { viruses, shopUser, basket, shopLogin, getAllViruses, addToCart };
 })
