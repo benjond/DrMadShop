@@ -1,6 +1,6 @@
 <template>
   <div class="items-list-container">
-    <h2 class="section-title">🦠 Catalogue de Virus</h2>
+    <h2 class="section-title">Catalogue de Virus</h2>
     <CheckedList
       :data="displayViruses"
       :fields="['name', 'price', 'formattedPromotion']"

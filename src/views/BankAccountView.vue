@@ -28,7 +28,7 @@ async function login() {
   <div class="bank-account-container">
     <div class="login-card">
         <div class="card-header">
-            <h2>🏦 Accès Compte</h2>
+            <h2>Accès Compte</h2>
             <p class="subtitle">Veuillez vous identifier</p>
         </div>
         
@@ -45,7 +45,7 @@ async function login() {
           <button @click="login" class="btn-primary">Valider</button>
         </div>
         <p v-if="errorMsg" class="error-message">
-            ⚠️ {{ errorMsg }}
+            {{ errorMsg }}
         </p>
     </div>
   </div>

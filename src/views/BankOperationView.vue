@@ -70,7 +70,7 @@ async function validateOperation() {
         <button @click="validateOperation" class="btn-validation">Valider l'opération</button>
         
         <div v-if="message" class="message-box success">
-          ✅ {{ message }}
+          {{ message }}
         </div>
     </div>
   </div>

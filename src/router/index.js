@@ -12,7 +12,6 @@ const routes = [
     {
         path: '/shop/login',
         name: 'shoplogin',
-        // import dynamique du composant, plutôt qu'en début de fichier, comme la 1ère route.
         component: () => import('@/views/ShopLoginView.vue')
     },
     //route shop racine et ses childrens

@@ -2,9 +2,8 @@
   <div class="app-container">
     <NavBar :links="links">
       <template #nav-button="{ label }">
-        <span v-if="label === 'boutique'" style="font-weight: bold;">{{ label }}</span>
-        <!-- Assuming generic icon usage for banque as requested "icône ressemblant à une banque" -->
-        <span v-else-if="label === 'banque'">🏦 Banque</span>
+        <span v-if="label === 'Boutique'" style="font-weight: bold;">{{ label }}</span>
+        <span v-else-if="label === 'Banque'">Banque</span>
         <span v-else>{{ label }}</span>
       </template>
     </NavBar>
@@ -24,8 +23,8 @@ import NavBar from "@/components/NavBar.vue";
 const route = useRoute();
 
 const links = ref([
-  { label: "boutique", to: "/shop" },
-  { label: "banque", to: "/bank" }
+  { label: "Boutique", to: "/shop" },
+  { label: "Banque", to: "/bank" }
 ]);
 
 const isHome = computed(() => route.path === '/');

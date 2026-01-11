@@ -2,7 +2,7 @@
   <div class="shop-login-container">
     <div class="login-card">
       <div class="card-header">
-        <h1>🔐 Connexion Boutique</h1>
+        <h1>Connexion Boutique</h1>
         <p class="subtitle">Identifiez-vous pour accéder à nos produits</p>
       </div>
 
@@ -20,13 +20,13 @@
 
       <div v-else class="user-logged">
         <div class="success-message">
-          <p>👋 Bonjour, <strong>{{shopStore.shopUser.name}}</strong></p>
+          <p>Bonjour, <strong>{{shopStore.shopUser.name}}</strong></p>
           <p class="status-text">Vous êtes connecté</p>
         </div>
         <button @click="doLogout" class="btn-logout">Se déconnecter</button>
       </div>
 
-      <p v-if="errorMessage" class="error-message">⚠️ {{errorMessage}}</p>
+      <p v-if="errorMessage" class="error-message">{{errorMessage}}</p>
     </div>
   </div>
 </template>
