@@ -1,17 +1,34 @@
 <template>
-  <div>
-    <h1>Login</h1>
+  <div class="shop-login-container">
+    <div class="login-card">
+      <div class="card-header">
+        <h1>🔐 Connexion Boutique</h1>
+        <p class="subtitle">Identifiez-vous pour accéder à nos produits</p>
+      </div>
 
-    <span>login</span><input v-model="login">
-    <span>password</span><input v-model="password" type="password">
-    <button @click="doLogin">Login</button>
-    <div v-if="shopStore.shopUser">
-        <p>{{shopStore.shopUser.name}} connecté</p>
-        <button @click="doLogout" style="background-color: #f44336;">Se déconnecter</button>
+      <div v-if="!shopStore.shopUser" class="login-form">
+        <div class="form-group">
+          <label>Identifiant</label>
+          <input v-model="login" type="text" placeholder="Votre login" class="input-field">
+        </div>
+        <div class="form-group">
+          <label>Mot de passe</label>
+          <input v-model="password" type="password" placeholder="Votre mot de passe" class="input-field">
+        </div>
+        <button @click="doLogin" class="btn-primary">Se connecter</button>
+      </div>
+
+      <div v-else class="user-logged">
+        <div class="success-message">
+          <p>👋 Bonjour, <strong>{{shopStore.shopUser.name}}</strong></p>
+          <p class="status-text">Vous êtes connecté</p>
+        </div>
+        <button @click="doLogout" class="btn-logout">Se déconnecter</button>
+      </div>
+
+      <p v-if="errorMessage" class="error-message">⚠️ {{errorMessage}}</p>
     </div>
-    <p v-if="errorMessage" style="color:red">{{errorMessage}}</p>
   </div>
-
 </template>
 
 <script setup>
@@ -32,77 +49,148 @@ const doLogin = async () => {
     router.push('/shop/buy')
   }
   else {
-    // "Afficher un dialogue d'erreur"
     alert(response.data || 'login/pass incorrect');
     errorMessage.value = response.data || 'erreur login';
   }
 }
 
 const doLogout = async () => {
-    // Basic logout logic: clear shopUser in store.
-    // The store doesn't have an explicit 'logout' action in previous files, but we can set shopUser.value = null if we add an action or access it.
-    // Wait, shop.js (store) needs a logout action or we manipulate state? 
-    // Best to add logout action to store or just reload?
-    // Let's add a logout action to store first if needed, likely cleaner. 
-    // But for now, let's assume we can add it to the component via store access if public.
-    // shopStore.shopUser = null; // Direct mutation if possible, or use a method if defined.
-    // Checking store file again... it exposes shopUser. 
     shopStore.shopUser = null;
     shopStore.basket = { items: [] };
+    login.value = '';
+    password.value = '';
+    errorMessage.value = '';
     router.push('/shop');
 }
-
-
 </script>
 
 <style scoped>
-h1 {
-  color: #4caf50;
-  border-bottom: 3px solid #388e3c;
-  padding-bottom: 10px;
-  margin-bottom: 20px;
+.shop-login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 60vh;
 }
 
-span {
-  font-weight: bold;
-  color: #555;
-  margin-right: 10px;
-  display: inline-block;
-  min-width: 80px;
+.login-card {
+  background: white;
+  padding: 2.5rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  width: 100%;
+  max-width: 450px;
+  text-align: center;
 }
 
-input {
-  padding: 8px 12px;
-  border: 2px solid #ddd;
-  border-radius: 4px;
-  margin: 5px 10px 5px 0;
-  font-size: 14px;
+.card-header {
+  margin-bottom: 2rem;
 }
 
-button {
-  margin: 5px;
-  padding: 10px 20px;
-  background-color: #4caf50;
-  color: white;
+.card-header h1 {
+  color: var(--primary-color);
+  margin: 0;
+  font-size: 1.8rem;
   border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-weight: bold;
-  font-size: 16px;
-  transition: background-color 0.3s;
+  padding: 0;
 }
 
-button:hover {
-  background-color: #388e3c;
+.subtitle {
+  color: #6b7280;
+  margin-top: 0.5rem;
+  font-size: 0.95rem;
 }
 
-p {
-  margin-top: 15px;
+.login-form, .user-logged {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.form-group {
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-group label {
+  font-weight: 600;
+  color: #374151;
+  font-size: 0.95rem;
+}
+
+.input-field {
   padding: 12px;
-  background-color: #e8f5e9;
-  border-left: 4px solid #4caf50;
-  border-radius: 4px;
-  font-weight: bold;
-  color: #2e7d32;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 1rem;
+  transition: all 0.2s;
+}
+
+.input-field:focus {
+  border-color: var(--primary-color);
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
+}
+
+.btn-primary {
+  background-color: var(--primary-color);
+  color: white;
+  padding: 12px;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  margin-top: 1rem;
+}
+
+.btn-primary:hover {
+  background-color: var(--primary-hover);
+}
+
+.btn-logout {
+  background-color: #ef4444;
+  color: white;
+  padding: 12px;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-logout:hover {
+  background-color: #dc2626;
+}
+
+.error-message {
+  background-color: #fee2e2;
+  color: #b91c1c;
+  padding: 12px;
+  border-radius: 6px;
+  margin-top: 1.5rem;
+  font-size: 0.9rem;
+  border: 1px solid #fecaca;
+}
+
+.success-message {
+  background-color: #ecfdf5;
+  padding: 1.5rem;
+  border-radius: 8px;
+  border: 1px solid #a7f3d0;
+}
+
+.success-message p {
+  margin: 0;
+  color: #065f46;
+}
+
+.status-text {
+  font-size: 0.9rem;
+  margin-top: 0.5rem !important;
+  color: #047857;
 }
 </style>

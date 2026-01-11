@@ -23,17 +23,6 @@ const menuItems = [
 <template>
   <div class="bank-view">
     <NavBar :links="navLinks">
-       <!-- Default behavior for Mon compte/Deconnexion handled by changing label in store/logic? 
-            Wait, prompt says "l'intitulé du bouton doit devenir 'Deconnexion'".
-            The NavBar component uses the link label. So we might need reactive links.
-            But simply, let's follow the slot requirement if any.
-            Actually, the prompt says "Pour la barre de navigation, on utilise le composant NavBar, auquel on donne en props le tableau [ {label: 'Mon compte', to: '/bank/account'} ]".
-            It implies we might not change the prop array dynamically in the simple version, 
-            OR we just use the slot to display Deconnexion if connected.
-            Re-reading: "l'intitulé du bouton doit devenir 'Deconnexion'".
-            And "On ne définit que le contenu du scoped-slot menu-title" logic usually applies to VerticalMenu.
-            Let's stick to the slot override I had which was good:
-       -->
        <template #nav-button="{ label }">
             <span v-if="label === 'Mon compte' && bankStore.account">Déconnexion</span>
             <span v-else>{{ label }}</span>
@@ -43,17 +32,14 @@ const menuItems = [
     <div class="bank-body">
         <VerticalMenu :items="menuItems">
           <template #menu-title="{ label }">
-            <!-- "afficher la valeur de label en gras, souligné" -->
             <b><u style="text-decoration: underline;">{{ label }}</u></b>
           </template>
-          <!-- "Pour le scoped-slot menu-link, on garde le comportement par défaut" -> No slot definition here -->
         </VerticalMenu>
       
       <div class="bank-main">
         <router-view name="bankmain" v-slot="{ Component }">
             <component :is="Component">
                 <template #account-amount="{ amount }">
-                    <!-- "un champ de saisie non éditable" -->
                     <input 
                         readonly 
                         :value="amount + ' €'"

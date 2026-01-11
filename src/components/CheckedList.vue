@@ -11,12 +11,10 @@
             />
           </td>
 
-          <!-- Affichage des champs demandés -->
           <td v-for="field in fields" :key="field" class="data-cell">
             {{ resolveField(item, field) }}
           </td>
 
-          <!-- Bouton d'item si itemButton.show est true -->
           <td v-if="itemButton && itemButton.show" class="button-cell">
             <input 
               v-if="itemAmount" 

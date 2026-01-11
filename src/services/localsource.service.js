@@ -2,7 +2,20 @@ import { items, shopusers, bankaccounts, transactions } from '@/datasource/data.
 import { v4 as uuidv4 } from 'uuid'
 import bcrypt from 'bcryptjs'
 
+/* Les fonctions ci-dessous doivent mimer ce que renvoie l'API en fonction des requêtes possibles.
+
+  Dans certains cas, ces fonctions vont avoir des paramètres afin de filtrer les données qui se trouvent dans data.js
+  Il est fortement conseillé que ces paramètres soient les mêmes que ceux qu'il faudrait envoyer à l'API.
+
+  IMPORTANT : toutes les requêtes à l'API DOIVENT renvoyer un objet JSON au format {error: ..., status: ..., data: ...}
+  Cela implique que toutes les foncitons ci-dessous renvoient un objet selon ce format.
+ */
+
 /**
+ * Si le login et le mot de passe sont fournis, que le login correspond à un utilisateur existant,
+ * shopLogin() renvoie un objet contenant uniquement l'id, le nom, le login, l'email
+ * et un identifiant de session sous forme d'un uuid. Sinon, un texte d'erreur est renvoyé.
+ * NB: pas de test du mot de passe dans cet exemple.
  * @param data
  * @returns {{error: number, status: number, data: string}|{error: number, status: number, data: {_id: string | *, name: string | *, login: string | *, email: string | *, session}}}
  */
@@ -31,6 +44,7 @@ function shopLogin(data) {
 }
 
 /**
+ * getAllViruses() renvoie un tableau d'items dont le format est le même que celui stockée en source locale (donc aussi en BdD côté API)
  * @returns {{error: number, data}}
  */
 function getAllViruses() {
@@ -38,6 +52,8 @@ function getAllViruses() {
 }
 
 /**
+ * Si un n° est fourni et qu'il correspond à un compte existant, getAccountAmount() renvoie uniquement le solde
+ * du compte, sinon un texte d'erreur.
  * @param number
  * @returns {{error: number, status: number, data: string}|{error: number, status: number, data: number | *}}
  */
@@ -53,6 +69,8 @@ function getAccountAmount(number) {
 }
 
 /**
+ * Si un n° est fourni et qu'il correspond à un compte existant, getAccountTransactions() renvoie uniquement le solde
+ * du compte, sinon un texte d'erreur.
  * @param number
  * @returns {{error: number, status: number, data: ({_id: string, amount: number, account: string, date: {$date: string}, uuid: string}|{_id: string, amount: number, account: string, date: {$date: string}, uuid: string}|{_id: string, amount: number, account: string, date: {$date: string}, uuid: string})[]}|{error: number, status: number, data: string}}
  */
@@ -81,17 +99,11 @@ function updateBasket(data) {
         return { error: 1, status: 404, data: 'Utilisateur non trouvé' }
     }
 
-    // Save the basket as is (with IDs or objects, we just store it)
-    // Ideally we store IDs.
-    // Ensure we store properly structured data for persistence if this was a real DB.
-    // For local source, let's just assign.
     user.basket = data.basket
 
-    // BUT return a POPULATED basket for the frontend
     let populatedBasket = JSON.parse(JSON.stringify(user.basket));
     if (populatedBasket.items) {
         populatedBasket.items.forEach(basketItem => {
-            // If item is just an ID, resolve it. If it's already an object, refresh it/ensure it's valid.
             let itemId = basketItem.item._id || basketItem.item;
             let fullItem = items.find(i => i._id === itemId);
             if (fullItem) {
@@ -115,9 +127,8 @@ function getBasket(data) {
     if (!user) {
         return { error: 1, status: 404, data: 'Utilisateur non trouvé' };
     }
-    if (user.basket == null) user.basket = { items: [] }; // Ensure object structure
+    if (user.basket == null) user.basket = { items: [] };
 
-    // Populate items
     let basket = JSON.parse(JSON.stringify(user.basket));
     if (!basket.items) basket.items = [];
 

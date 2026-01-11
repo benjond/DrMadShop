@@ -2,8 +2,8 @@
   <div class="items-list-container">
     <h2 class="section-title">🦠 Catalogue de Virus</h2>
     <CheckedList
-      :data="shopStore.viruses"
-      :fields="['name', 'price', 'promotion']"
+      :data="displayViruses"
+      :fields="['name', 'price', 'formattedPromotion']"
       :itemCheck="true"
       :checked="checkedItems"
       :itemButton="{ show: true, text: 'Ajouter' }"
@@ -24,8 +24,24 @@ import CheckedList from '@/components/CheckedList.vue';
 const shopStore = useShopStore();
 const selectedIndices = ref([]);
 
+const displayViruses = computed(() => {
+    return shopStore.viruses.map(virus => {
+        let promoString = 'Aucune';
+        if (virus.promotion && virus.promotion.length > 0) {
+            let promos = [];
+            for (const p of virus.promotion) {
+                promos.push(`-${p.discount}% dès ${p.amount} achetés`);
+            }
+            promoString = promos.join(', ');
+        }
+        return {
+            ...virus,
+            formattedPromotion: promoString
+        };
+    });
+});
+
 const checkedItems = computed(() => {
-  // Version débutant : boucle for classique
   let result = [];
   for (let i = 0; i < shopStore.viruses.length; i++) {
     let isChecked = selectedIndices.value.includes(i);
@@ -44,7 +60,6 @@ function toggleSelection(index) {
 }
 
 function addToCart(payload) {
-  // Pas de destructuration
   const index = payload.index;
   const amount = payload.amount;
   const item = shopStore.viruses[index];
@@ -56,7 +71,6 @@ function addToCart(payload) {
 
 function addAllToCart(payload) {
   if (payload && payload.length > 0) {
-    // Boucle classique au lieu de forEach
     for (let i = 0; i < payload.length; i++) {
         const p = payload[i];
         const index = p.index;

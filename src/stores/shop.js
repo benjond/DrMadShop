@@ -12,7 +12,6 @@ export const useShopStore = defineStore('shop', () => {
   });
 
   onBeforeMount(() => {
-    // If user is already loaded/persisted, we might want to fetch their basket
     if (shopUser.value) {
       updateBasket(shopUser.value.basket);
     }
@@ -33,7 +32,6 @@ export const useShopStore = defineStore('shop', () => {
     let response = await ShopService.shopLogin(data);
     if (response.error === 0) {
       shopUser.value = response.data;
-      // Fetch basket for logged in user
       await getBasket();
     }
     else {
@@ -66,24 +64,16 @@ export const useShopStore = defineStore('shop', () => {
   }
 
   async function addToBasket(item, amount) {
-    if (!shopUser.value) {
-      alert("Veuillez vous connecter pour ajouter des articles au panier.");
-      return;
-    }
-
-    // Defensive initialization
     if (!shopUser.value.basket) {
       shopUser.value.basket = { items: [] };
     }
-    // Ensure items is an array
     if (!shopUser.value.basket.items || !Array.isArray(shopUser.value.basket.items)) {
       shopUser.value.basket.items = [];
     }
 
     const currentItems = shopUser.value.basket.items;
 
-    // Check if item already in basket
-    // Determine ID safely
+
     const itemId = item._id || item;
 
     const existingItemIndex = currentItems.findIndex(i => {
@@ -94,11 +84,9 @@ export const useShopStore = defineStore('shop', () => {
     if (existingItemIndex !== -1) {
       currentItems[existingItemIndex].amount += amount;
     } else {
-      // Store ID
       currentItems.push({ item: itemId, amount });
     }
 
-    // Update basket in backend
     try {
       const response = await ShopService.updateBasket({ _id: shopUser.value._id, basket: shopUser.value.basket });
       if (response.error === 0) {
@@ -116,7 +104,7 @@ export const useShopStore = defineStore('shop', () => {
   async function removeFromBasket(index) {
     if (!shopUser.value || !shopUser.value.basket || !shopUser.value.basket.items) return;
 
-    // Remove item at specific index
+  x
     shopUser.value.basket.items.splice(index, 1);
 
     try {
@@ -152,14 +140,13 @@ export const useShopStore = defineStore('shop', () => {
     }
   }
 
-  // Order actions
+  // Commandes
 
   async function createOrder() {
     if (!shopUser.value || !shopUser.value.basket) return { error: 1, data: 'No user or basket' };
 
     let response = await ShopService.orderBasket(shopUser.value._id, shopUser.value.basket);
     if (response.error === 0) {
-      // Clear basket locally as well since the backend does it
       basket.value = { items: [] };
       shopUser.value.basket = { items: [] };
     }
@@ -180,7 +167,6 @@ export const useShopStore = defineStore('shop', () => {
     if (!shopUser.value) return;
     let response = await ShopService.payOrder(uuid, shopUser.value._id, transactionUuid);
     if (response.error === 0) {
-      // Refresh orders to update status
       await getAllOrders();
     }
     return response;

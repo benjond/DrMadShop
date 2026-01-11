@@ -18,40 +18,74 @@ const headers = [
 const processedTransactions = computed(() => {
   if (!bankStore.accountTransactions) return [];
   
-  let txs = bankStore.accountTransactions.map(t => {
-    const isSource = t.amount < 0;
+  let txs = [];
+  for (let i = 0; i < bankStore.accountTransactions.length; i++) {
+    let t = bankStore.accountTransactions[i];
+    let isSource = false;
+    if (t.amount < 0) {
+        isSource = true;
+    }
+    
+    let dateObj = new Date(t.date.$date);
     
     let newItem = {
       _id: t._id,
       amount: t.amount,
       date: t.date,
       uuid: t.uuid,
-      account: t.account
+      account: t.account,
+      amountDisplay: t.amount + ' €',
+      dateDisplay: dateObj.toLocaleString(),
+      rawDate: dateObj,
+      type: 'D'
     };
     
-    newItem.amountDisplay = t.amount + ' €';
-    newItem.dateDisplay = new Date(t.date.$date).toLocaleString();
-    newItem.rawDate = new Date(t.date.$date);
-    newItem.type = isSource ? 'S' : 'D';
+    if (isSource) {
+        newItem.type = 'S';
+    }
     
-    return newItem;
+    txs.push(newItem);
+  }
+  
+  txs.sort((a, b) => {
+      return b.rawDate - a.rawDate;
   });
   
-  txs.sort((a, b) => b.rawDate - a.rawDate);
-  
   if (filterActive.value) {
-    const from = dateFrom.value ? new Date(dateFrom.value) : null;
-    const to = dateTo.value ? new Date(dateTo.value) : null;
+    let from = null;
+    if (dateFrom.value) {
+        from = new Date(dateFrom.value);
+    }
+    let to = null;
+    if (dateTo.value) {
+        to = new Date(dateTo.value);
+    }
     
     if (from && to && from > to) {
         return [];
     }
     
-    txs = txs.filter(t => {
-      if (from && t.rawDate < from) return false;
-      if (to && t.rawDate > to) return false;
-      return true;
-    });
+    let filteredTxs = [];
+    for (let i = 0; i < txs.length; i++) {
+        let t = txs[i];
+        let keep = true;
+        
+        if (from) {
+            if (t.rawDate < from) {
+                keep = false;
+            }
+        }
+        if (to) {
+            if (t.rawDate > to) {
+                keep = false;
+            }
+        }
+        
+        if (keep) {
+            filteredTxs.push(t);
+        }
+    }
+    return filteredTxs;
   }
   
   return txs;

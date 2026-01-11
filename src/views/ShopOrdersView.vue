@@ -25,6 +25,9 @@ async function cancelOrder(uuid) {
 }
 
 function formatDate(dateStr) {
+  if (dateStr && dateStr.$date) {
+    return new Date(dateStr.$date).toLocaleString();
+  }
   return new Date(dateStr).toLocaleString();
 }
 </script>
