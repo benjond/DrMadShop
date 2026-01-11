@@ -1,13 +1,13 @@
 <template>
-  <div>
-    <h2>Liste des virus</h2>
+  <div class="items-list-container">
+    <h2 class="section-title">🦠 Catalogue de Virus</h2>
     <CheckedList
       :data="shopStore.viruses"
       :fields="['name', 'price', 'promotion']"
       :itemCheck="true"
       :checked="checkedItems"
-      :itemButton="{ show: true, text: 'Ajouter au panier' }"
-      :listButton="{ show: true, text: 'Ajouter sélection au panier' }"
+      :itemButton="{ show: true, text: 'Ajouter' }"
+      :listButton="{ show: true, text: 'Ajouter la sélection' }"
       :itemAmount="true"
       @checked-changed="toggleSelection"
       @item-button-clicked="addToCart"
@@ -25,7 +25,13 @@ const shopStore = useShopStore();
 const selectedIndices = ref([]);
 
 const checkedItems = computed(() => {
-  return shopStore.viruses.map((_, index) => selectedIndices.value.includes(index));
+  // Version débutant : boucle for classique
+  let result = [];
+  for (let i = 0; i < shopStore.viruses.length; i++) {
+    let isChecked = selectedIndices.value.includes(i);
+    result.push(isChecked);
+  }
+  return result;
 });
 
 function toggleSelection(index) {
@@ -38,35 +44,44 @@ function toggleSelection(index) {
 }
 
 function addToCart(payload) {
-  // payload is { index, amount } because itemAmount is true
-  const { index, amount } = payload;
+  // Pas de destructuration
+  const index = payload.index;
+  const amount = payload.amount;
   const item = shopStore.viruses[index];
+  
   if (item) {
     shopStore.addToCart(item, amount);
-    alert(`Ajouté au panier : ${amount} x ${item.name}`);
   }
 }
 
 function addAllToCart(payload) {
-  // payload is array of { index, amount }
   if (payload && payload.length > 0) {
-    payload.forEach(({ index, amount }) => {
-      const item = shopStore.viruses[index];
-      if (item) {
-        shopStore.addToCart(item, amount);
-      }
-    });
-    alert(`${payload.length} articles ajoutés au panier`);
-    selectedIndices.value = []; // Deselect items as requested
-  } else {
-    alert('Aucun article sélectionné');
+    // Boucle classique au lieu de forEach
+    for (let i = 0; i < payload.length; i++) {
+        const p = payload[i];
+        const index = p.index;
+        const amount = p.amount;
+        
+        const item = shopStore.viruses[index];
+        if (item) {
+            shopStore.addToCart(item, amount);
+        }
+    }
+    selectedIndices.value = []; 
   }
 }
 </script>
 
 <style scoped>
-h2 {
-  color: #2c3e50;
-  margin-bottom: 20px;
+.items-list-container {
+    background: white;
+}
+
+.section-title {
+  color: var(--primary-color);
+  margin-bottom: 24px;
+  font-size: 1.5rem;
+  border-bottom: 2px solid #f1f5f9;
+  padding-bottom: 12px;
 }
 </style>

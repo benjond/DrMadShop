@@ -15,11 +15,6 @@ const routes = [
         // import dynamique du composant, plutôt qu'en début de fichier, comme la 1ère route.
         component: () => import('@/views/ShopLoginView.vue')
     },
-    {
-        path: '/bank/account',
-        name: 'bankaccount',
-        component: () => import('@/views/BankAccountView.vue')
-    },
     //route shop racine et ses childrens
     {
         path: '/shop',
@@ -27,24 +22,24 @@ const routes = [
         component: () => import('@/views/ShopView.vue'),
         children: [
             {
-                path : 'home',
+                path: 'home',
                 name: 'shop.home',
                 components: { shopmain: () => import('@/views/ShopHomeView.vue') },
                 alias: ''
 
             },
             {
-                path : 'login',
+                path: 'login',
                 name: 'shop.login',
                 components: { shopmain: () => import('@/views/ShopLoginView.vue') }
             },
             {
-                path : 'buy',
+                path: 'buy',
                 name: 'shop.buy',
                 components: { shopmain: () => import('@/views/ShopBuyView.vue') }
             },
             {
-                path: 'pay/:orderId',
+                path: 'pay/:orderUuid?',
                 name: 'shop.pay',
                 components: { shopmain: () => import('@/views/ShopPayView.vue') },
                 props: { shopmain: true }
@@ -54,8 +49,44 @@ const routes = [
                 name: 'shop.orders',
                 components: { shopmain: () => import('@/views/ShopOrdersView.vue') }
             }
-
-
+        ]
+    },
+    {
+        path: '/bank',
+        name: 'bank',
+        component: () => import('@/views/BankView.vue'),
+        children: [
+            {
+                path: 'home',
+                name: 'bank.home',
+                alias: '',
+                components: { bankmain: () => import('@/views/BankHomeView.vue') }
+            },
+            {
+                path: 'account',
+                name: 'bank.account',
+                components: { bankmain: () => import('@/views/BankAccountView.vue') }
+            },
+            {
+                path: 'amount',
+                name: 'bank.amount',
+                components: { bankmain: () => import('@/views/BankAmountView.vue') }
+            },
+            {
+                path: 'operation',
+                name: 'bank.operation',
+                components: { bankmain: () => import('@/views/BankOperationView.vue') }
+            },
+            {
+                path: 'history',
+                name: 'bank.history',
+                components: { bankmain: () => import('@/views/BankHistoryView.vue') }
+            },
+            {
+                path: 'logout',
+                name: 'bank.logout',
+                components: { bankmain: () => import('@/views/BankLogoutView.vue') }
+            }
         ]
     }
 ]

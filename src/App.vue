@@ -1,39 +1,43 @@
 <template>
-  <div>
-    <NavBar
-      :titles="[
-        {text: 'Shop Login', color: '#4CAF50'},
-        {text: 'Viruses', color: '#2196F3'},
-        {text: 'Compte bancaire', color: '#FF9800'}
-      ]"
-      @menu-clicked="goTo"
-    />
-    <h1>Welcome to DrMad app</h1>
-    <router-view></router-view>
+  <div class="app-container">
+    <NavBar :links="links">
+      <template #nav-button="{ label }">
+        <span v-if="label === 'boutique'" style="font-weight: bold;">{{ label }}</span>
+        <!-- Assuming generic icon usage for banque as requested "icône ressemblant à une banque" -->
+        <span v-else-if="label === 'banque'">🏦 Banque</span>
+        <span v-else>{{ label }}</span>
+      </template>
+    </NavBar>
+    
+    <div class="main-content">
+      <h1 v-if="isHome">Bienvenue DrMad</h1>
+      <router-view></router-view>
+    </div>
   </div>
 </template>
 
 <script setup>
-import {onMounted} from "vue";
-import {useShopStore} from "@/stores/shop.js";
-import {useRouter} from "vue-router";
+import { ref, computed } from 'vue';
+import { useRoute } from 'vue-router';
 import NavBar from "@/components/NavBar.vue";
 
-const shopStore = useShopStore()
-const router = useRouter()
+const route = useRoute();
 
-onMounted(() => {
-  shopStore.getAllViruses()
-})
+const links = ref([
+  { label: "boutique", to: "/shop" },
+  { label: "banque", to: "/bank" }
+]);
 
-const goTo = (linkIndex) => {
-  const routes = [
-    '/shop/login',
-    '/shop/items',       // index 1 : Viruses (liste des virus)
-    '/bank/account'      // index 2 : Compte bancaire
-  ]
-  router.push(routes[linkIndex])
-}
+const isHome = computed(() => route.path === '/');
 </script>
 
-<style scoped></style>
+<style scoped>
+.app-container {
+  font-family: Arial, sans-serif;
+  color: #2c3e50;
+}
+.main-content {
+    padding: 20px;
+    text-align: center;
+}
+</style>

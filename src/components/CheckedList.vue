@@ -13,7 +13,7 @@
 
           <!-- Affichage des champs demandés -->
           <td v-for="field in fields" :key="field" class="data-cell">
-            {{ item[field] }}
+            {{ resolveField(item, field) }}
           </td>
 
           <!-- Bouton d'item si itemButton.show est true -->
@@ -59,6 +59,10 @@ const props = defineProps({
 const emit = defineEmits(['checked-changed', 'item-button-clicked', 'list-button-clicked'])
 
 const amounts = ref([]);
+
+function resolveField(item, field) {
+  return field.split('.').reduce((obj, key) => obj && obj[key], item);
+}
 
 watch(() => props.data, (newData) => {
   if (newData) {

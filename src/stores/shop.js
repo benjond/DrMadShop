@@ -8,13 +8,11 @@ export const useShopStore = defineStore('shop', () => {
   const viruses = ref([]);
   const shopUser = ref(null);
   const basket = ref({
-    items: [{
-      item: {type: String, required: true, ref: 'Item'},
-      amount: {type: Number, required: true, min:0}, 
-    }]
+    items: []
   });
 
   onBeforeMount(() => {
+    // If user is already loaded/persisted, we might want to fetch their basket
     if (shopUser.value) {
       updateBasket(shopUser.value.basket);
     }
@@ -32,10 +30,11 @@ export const useShopStore = defineStore('shop', () => {
   }
 
   async function shopLogin(data) {
-    console.log('login');
     let response = await ShopService.shopLogin(data);
     if (response.error === 0) {
       shopUser.value = response.data;
+      // Fetch basket for logged in user
+      await getBasket();
     }
     else {
       console.log(response.data);
@@ -44,7 +43,6 @@ export const useShopStore = defineStore('shop', () => {
   }
 
   async function getAllViruses() {
-    console.log('récupération des viruses');
     let response = await ShopService.getAllViruses();
     if (response.error === 0) {
       viruses.value = response.data;
@@ -55,21 +53,16 @@ export const useShopStore = defineStore('shop', () => {
     return response
   }
 
-  function addToCart(item, amount) {
-    if (shopUser.value) {
-      if (!shopUser.value.basket) {
-        shopUser.value.basket = { items: [] };
-      }
-
-      const existingItem = shopUser.value.basket.items.find(i => i.item._id === item._id);
-      if (existingItem) {
-        existingItem.amount += amount;
-      } else {
-        shopUser.value.basket.items.push({ item, amount });
-      }
+  async function getBasket() {
+    if (!shopUser.value) return;
+    let response = await ShopService.getBasket({ _id: shopUser.value._id });
+    if (response.error === 0) {
+      basket.value = response.data;
+      shopUser.value.basket = response.data;
     } else {
-      console.warn('User not logged in, cannot add to cart');
+      console.error(response.data);
     }
+    return response;
   }
 
   async function addToBasket(item, amount) {
@@ -78,20 +71,25 @@ export const useShopStore = defineStore('shop', () => {
       return;
     }
 
+    // Ensure basket structure exists
     if (!shopUser.value.basket) {
       shopUser.value.basket = { items: [] };
     }
+    // Clone local basket to avoid direct mutation issues before save, or just use it.
+    // The previous implementation was modifying shopUser.value.basket directly then saving it.
 
-    const existingItem = shopUser.value.basket.items.find(i => i.item._id === item._id);
-    if (existingItem) {
-      existingItem.amount += amount;
+    // Check if item already in basket
+    const existingItemIndex = shopUser.value.basket.items.findIndex(i => (i.item._id === item._id) || (i.item === item._id));
+
+    if (existingItemIndex !== -1) {
+      shopUser.value.basket.items[existingItemIndex].amount += amount;
     } else {
-      shopUser.value.basket.items.push({ item, amount });
+      shopUser.value.basket.items.push({ item: item._id, amount }); // Store only ID as per spec? Local source seems to handle objects or IDs. Storing ID is safer for persistence consistency.
     }
 
     // Update basket in backend or local storage
     try {
-      const response = await ShopService.updateBasket(shopUser.value.basket);
+      const response = await ShopService.updateBasket({ _id: shopUser.value._id, basket: shopUser.value.basket });
       if (response.error === 0) {
         basket.value = response.data;
         shopUser.value.basket = response.data;
@@ -104,20 +102,14 @@ export const useShopStore = defineStore('shop', () => {
     }
   }
 
-  async function removeFromBasket(itemId) {
-    if (!shopUser.value) {
-      console.warn('User not logged in, cannot remove from basket');
-      return;
-    }
+  async function removeFromBasket(index) {
+    if (!shopUser.value || !shopUser.value.basket) return;
 
-    if (!shopUser.value.basket) {
-      shopUser.value.basket = { items: [] };
-    }
-
-    shopUser.value.basket.items = shopUser.value.basket.items.filter(i => i.item._id !== itemId);
+    // Remove item at specific index
+    shopUser.value.basket.items.splice(index, 1);
 
     try {
-      const response = await ShopService.updateBasket(shopUser.value.basket);
+      const response = await ShopService.updateBasket({ _id: shopUser.value._id, basket: shopUser.value.basket });
       if (response.error === 0) {
         basket.value = response.data;
         shopUser.value.basket = response.data;
@@ -131,15 +123,12 @@ export const useShopStore = defineStore('shop', () => {
   }
 
   async function clearBasket() {
-    if (!shopUser.value) {
-      console.warn('User not logged in, cannot clear basket');
-      return;
-    }
+    if (!shopUser.value) return;
 
     shopUser.value.basket = { items: [] };
 
     try {
-      const response = await ShopService.updateBasket(shopUser.value.basket);
+      const response = await ShopService.updateBasket({ _id: shopUser.value._id, basket: shopUser.value.basket });
       if (response.error === 0) {
         basket.value = response.data;
         shopUser.value.basket = response.data;
@@ -152,5 +141,61 @@ export const useShopStore = defineStore('shop', () => {
     }
   }
 
-  return { viruses, shopUser, basket, shopLogin, getAllViruses, addToCart, addToBasket, removeFromBasket, clearBasket };
+  // Order actions
+
+  async function createOrder() {
+    if (!shopUser.value || !shopUser.value.basket) return { error: 1, data: 'No user or basket' };
+
+    let response = await ShopService.orderBasket(shopUser.value._id, shopUser.value.basket);
+    if (response.error === 0) {
+      // Clear basket locally as well since the backend does it
+      basket.value = { items: [] };
+      shopUser.value.basket = { items: [] };
+    }
+    return response;
+  }
+
+  async function getAllOrders() {
+    if (!shopUser.value) return;
+
+    let response = await ShopService.getAllOrders(shopUser.value._id);
+    if (response.error === 0) {
+      shopUser.value.orders = response.data;
+    }
+    return response;
+  }
+
+  async function payOrder(uuid, transactionUuid) {
+    if (!shopUser.value) return;
+    let response = await ShopService.payOrder(uuid, shopUser.value._id, transactionUuid);
+    if (response.error === 0) {
+      // Refresh orders to update status
+      await getAllOrders();
+    }
+    return response;
+  }
+
+  async function cancelOrder(uuid) {
+    if (!shopUser.value) return;
+    let response = await ShopService.cancelOrder(uuid, shopUser.value._id);
+    if (response.error === 0) {
+      await getAllOrders();
+    }
+    return response;
+  }
+
+  return {
+    viruses,
+    shopUser,
+    basket,
+    shopLogin,
+    getAllViruses,
+    addToBasket,
+    removeFromBasket,
+    clearBasket,
+    createOrder,
+    getAllOrders,
+    payOrder,
+    cancelOrder
+  };
 })
