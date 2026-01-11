@@ -60,17 +60,14 @@ function handleTableClick() {
       </thead>
       <tbody>
         <tr v-for="(item, index) in items" :key="index">
-          <!-- Checkbox cell -->
           <td v-if="itemCheck">
             <input type="checkbox" @change="toggleCheck(index)" />
           </td>
           
-          <!-- Data cells -->
           <td v-for="header in headers" :key="header.name">
             {{ item[header.name] }}
           </td>
           
-          <!-- Button cell -->
           <td v-if="itemButton">
             <button @click="handleItemClick(item)">
               <slot name="item-button">Action</slot>

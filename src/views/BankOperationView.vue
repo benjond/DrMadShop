@@ -34,7 +34,6 @@ async function validateOperation() {
       message.value = '';
     }, 5000);
   } else {
-    // "sinon, une boîte de dialogue apparaît avec un message d'erreur"
     alert(response ? response.data : "Erreur inconnue");
   }
 }
