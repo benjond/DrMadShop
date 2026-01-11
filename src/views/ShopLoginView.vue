@@ -5,7 +5,10 @@
     <span>login</span><input v-model="login">
     <span>password</span><input v-model="password" type="password">
     <button @click="doLogin">Login</button>
-    <p v-if="shopStore.shopUser">{{shopStore.shopUser.name}} connecté</p>
+    <div v-if="shopStore.shopUser">
+        <p>{{shopStore.shopUser.name}} connecté</p>
+        <button @click="doLogout" style="background-color: #f44336;">Se déconnecter</button>
+    </div>
     <p v-if="errorMessage" style="color:red">{{errorMessage}}</p>
   </div>
 
@@ -29,8 +32,24 @@ const doLogin = async () => {
     router.push('/shop/buy')
   }
   else {
-    errorMessage.value = response.data || 'erreur login'
+    // "Afficher un dialogue d'erreur"
+    alert(response.data || 'login/pass incorrect');
+    errorMessage.value = response.data || 'erreur login';
   }
+}
+
+const doLogout = async () => {
+    // Basic logout logic: clear shopUser in store.
+    // The store doesn't have an explicit 'logout' action in previous files, but we can set shopUser.value = null if we add an action or access it.
+    // Wait, shop.js (store) needs a logout action or we manipulate state? 
+    // Best to add logout action to store or just reload?
+    // Let's add a logout action to store first if needed, likely cleaner. 
+    // But for now, let's assume we can add it to the component via store access if public.
+    // shopStore.shopUser = null; // Direct mutation if possible, or use a method if defined.
+    // Checking store file again... it exposes shopUser. 
+    shopStore.shopUser = null;
+    shopStore.basket = { items: [] };
+    router.push('/shop');
 }
 
 

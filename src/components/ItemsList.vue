@@ -50,7 +50,7 @@ function addToCart(payload) {
   const item = shopStore.viruses[index];
   
   if (item) {
-    shopStore.addToCart(item, amount);
+    shopStore.addToBasket(item, amount);
   }
 }
 
@@ -64,7 +64,7 @@ function addAllToCart(payload) {
         
         const item = shopStore.viruses[index];
         if (item) {
-            shopStore.addToCart(item, amount);
+            shopStore.addToBasket(item, amount);
         }
     }
     selectedIndices.value = []; 

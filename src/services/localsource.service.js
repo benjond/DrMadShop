@@ -80,8 +80,27 @@ function updateBasket(data) {
     if (!user) {
         return { error: 1, status: 404, data: 'Utilisateur non trouvé' }
     }
+
+    // Save the basket as is (with IDs or objects, we just store it)
+    // Ideally we store IDs.
+    // Ensure we store properly structured data for persistence if this was a real DB.
+    // For local source, let's just assign.
     user.basket = data.basket
-    return { error: 0, status: 200, data: user.basket }
+
+    // BUT return a POPULATED basket for the frontend
+    let populatedBasket = JSON.parse(JSON.stringify(user.basket));
+    if (populatedBasket.items) {
+        populatedBasket.items.forEach(basketItem => {
+            // If item is just an ID, resolve it. If it's already an object, refresh it/ensure it's valid.
+            let itemId = basketItem.item._id || basketItem.item;
+            let fullItem = items.find(i => i._id === itemId);
+            if (fullItem) {
+                basketItem.item = JSON.parse(JSON.stringify(fullItem));
+            }
+        });
+    }
+
+    return { error: 0, status: 200, data: populatedBasket }
 }
 
 /**
@@ -96,8 +115,20 @@ function getBasket(data) {
     if (!user) {
         return { error: 1, status: 404, data: 'Utilisateur non trouvé' };
     }
-    if (user.basket == null) user.basket = [];
+    if (user.basket == null) user.basket = { items: [] }; // Ensure object structure
+
+    // Populate items
     let basket = JSON.parse(JSON.stringify(user.basket));
+    if (!basket.items) basket.items = [];
+
+    basket.items.forEach(basketItem => {
+        let itemId = basketItem.item._id || basketItem.item;
+        let fullItem = items.find(i => i._id === itemId);
+        if (fullItem) {
+            basketItem.item = JSON.parse(JSON.stringify(fullItem));
+        }
+    });
+
     return { error: 0, status: 200, data: basket };
 }
 

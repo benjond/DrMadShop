@@ -9,12 +9,21 @@ onMounted(() => {
   shopStore.getAllViruses();
 });
 
-const shopLinks = [
-  { label: "Login", to: "/shop/login" },
-  { label: "Acheter", to: "/shop/buy" },
-  { label: "Payer", to: "/shop/pay" },
-  { label: "Commandes", to: "/shop/orders" },
-];
+import { computed } from "vue";
+
+const shopLinks = computed(() => {
+    if (shopStore.shopUser) {
+        return [
+            { label: "Logout", to: "/shop/login" }, // "Logout" goes to login page where we can handle it
+            { label: "Acheter", to: "/shop/buy" },
+            { label: "Payer", to: "/shop/pay" },
+            { label: "Commandes", to: "/shop/orders" },
+        ];
+    }
+    return [
+        { label: "Login", to: "/shop/login" }
+    ];
+});
 </script>
 
 <template>

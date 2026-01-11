@@ -11,6 +11,8 @@ const selectedIndices = ref([]);
 async function handleBuy() {
   const response = await shopStore.createOrder();
   if (response.error === 0) {
+    // "Une boite de dialogue apparaît faisant apparaître l'uuid de la commande."
+    alert("Commande créée avec succès ! UUID : " + response.data.uuid);
     // Redirection vers la page de paiement avec l'uuid
     router.push(`/shop/pay/${response.data.uuid}`);
   } else {

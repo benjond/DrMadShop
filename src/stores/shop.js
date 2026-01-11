@@ -67,27 +67,38 @@ export const useShopStore = defineStore('shop', () => {
 
   async function addToBasket(item, amount) {
     if (!shopUser.value) {
-      console.warn('User not logged in, cannot add to basket');
+      alert("Veuillez vous connecter pour ajouter des articles au panier.");
       return;
     }
 
-    // Ensure basket structure exists
+    // Defensive initialization
     if (!shopUser.value.basket) {
       shopUser.value.basket = { items: [] };
     }
-    // Clone local basket to avoid direct mutation issues before save, or just use it.
-    // The previous implementation was modifying shopUser.value.basket directly then saving it.
-
-    // Check if item already in basket
-    const existingItemIndex = shopUser.value.basket.items.findIndex(i => (i.item._id === item._id) || (i.item === item._id));
-
-    if (existingItemIndex !== -1) {
-      shopUser.value.basket.items[existingItemIndex].amount += amount;
-    } else {
-      shopUser.value.basket.items.push({ item: item._id, amount }); // Store only ID as per spec? Local source seems to handle objects or IDs. Storing ID is safer for persistence consistency.
+    // Ensure items is an array
+    if (!shopUser.value.basket.items || !Array.isArray(shopUser.value.basket.items)) {
+      shopUser.value.basket.items = [];
     }
 
-    // Update basket in backend or local storage
+    const currentItems = shopUser.value.basket.items;
+
+    // Check if item already in basket
+    // Determine ID safely
+    const itemId = item._id || item;
+
+    const existingItemIndex = currentItems.findIndex(i => {
+      const iId = i.item._id || i.item;
+      return iId === itemId;
+    });
+
+    if (existingItemIndex !== -1) {
+      currentItems[existingItemIndex].amount += amount;
+    } else {
+      // Store ID
+      currentItems.push({ item: itemId, amount });
+    }
+
+    // Update basket in backend
     try {
       const response = await ShopService.updateBasket({ _id: shopUser.value._id, basket: shopUser.value.basket });
       if (response.error === 0) {
@@ -103,7 +114,7 @@ export const useShopStore = defineStore('shop', () => {
   }
 
   async function removeFromBasket(index) {
-    if (!shopUser.value || !shopUser.value.basket) return;
+    if (!shopUser.value || !shopUser.value.basket || !shopUser.value.basket.items) return;
 
     // Remove item at specific index
     shopUser.value.basket.items.splice(index, 1);

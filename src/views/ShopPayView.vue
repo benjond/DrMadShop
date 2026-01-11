@@ -51,7 +51,7 @@ async function pay() {
         <input v-model="transactionUuid" type="text" placeholder="UUID Transaction" />
     </div>
 
-    <button @click="pay">Payer</button>
+    <button @click="pay">Vérifier</button>
     
     <p v-if="errorMsg" class="error">{{ errorMsg }}</p>
   </div>
